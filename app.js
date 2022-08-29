@@ -29,6 +29,7 @@ const app = express()
 // requests with body parser
 app.use(bodyParser.urlencoded({ extended: false }))
 
+
 app.get('/', (req, res, next) => {
   console.log('get')
   res.send('<form action="/user" method="POST"><input type="text" name="username" /><button type="submit">Create User</button></form>')
@@ -38,7 +39,5 @@ app.post('/user', (req, res, next) => {
   console.log('post')
   res.send(`<h1>User: ${req.body.username}</h1>`)
 })
-
-
-
+ 
 app.listen(5000)
