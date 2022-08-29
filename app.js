@@ -1,27 +1,33 @@
-const http = require('http')
+const express = require('express')
+const app = express()
 
-const server = http.createServer((req, res) => {
-  console.log('INCOMING REQUEST')
-  console.log(req.method, req.url)
-  
-  if (req.method === 'POST') {
-    let body = ''
-    
-    req.on('end', () => {
-      console.log(body)
-      const userName = body.split('=')[1]
-      res.end('<h1>'+userName+'</h1>')
-    })
-    
-    req.on('data', (chunk) => {
-      body += chunk
-    })
+app.use((req, res, next) => { // app.use() express method to create middlewares
+  next() // if you are not calling next() then any middleware after this one will not be reached by the request; 
+        //  you should always call next() unless you are in the middleware where you wanna send back a response
+}) 
 
-  } else {
-    res.setHeader('Content-type', 'text/html')
-    res.end('<form method="POST"><input type="text" name="username"><button type="submit">Create User</button></form>')
-  }
+app.use((req, res, next) => {
+  let body = ''
+
+  req.on('end', () => {
+    const username = body.split('=')[1]
+    if (username){
+      req.body = {name: username}
+    }
+    next()
+  })
+
+  req.on('data', (chunk) => {
+    body += chunk
+  })
 
 })
 
-server.listen(5000)
+app.use((req, res, next) => {
+  if (req.body) {
+    return res.send(`<h1>${req.body.name}</h1>`)
+  }
+  res.send('<form method="POST"><input type="text" name="username" /><button type="submit">Create User</button></form>')
+})
+
+app.listen(5000)
